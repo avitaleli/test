@@ -26,3 +26,10 @@ mainClassName = "com.mytest.dropwizard.DropwizardApplication"
 run {
     args 'server', 'dropwizard_config.yml'
 }
+
+//run {
+//    args = ['server', 'dropwizard_config.yml']
+//    classpath = sourceSets.main.runtimeClasspath
+////    jvmArgs = ["-Xdebug", "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8090"]
+////    jvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8090"]
+//}
