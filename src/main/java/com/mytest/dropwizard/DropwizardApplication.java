@@ -2,10 +2,15 @@ package com.mytest.dropwizard;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.mytest.dropwizard.configuration.DropwizardConfiguration;
+import com.mytest.dropwizard.filters.SecurityFilter;
 import com.mytest.dropwizard.resources.GreetingResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+
+import javax.servlet.*;
+import java.io.IOException;
+import java.util.EnumSet;
 
 /**
  * Created by avitale on 9/28/15.
@@ -23,6 +28,11 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
                 return Result.healthy("service is healthy");
             }
         });
+
+        // add filter // http://stackoverflow.com/questions/19166603/custom-jetty-filters-in-dropwizard
+        environment.servlets()
+                   .addFilter("securityFilter", SecurityFilter.class)
+                   .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         // register resource
         environment.jersey().register(greetingResource);
