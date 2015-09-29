@@ -23,6 +23,7 @@ public class SecurityFilter implements Filter {
         } else {
             System.out.println("not authenticated");
         }
+        chain.doFilter(request, servletResponse);
     }
 
     @Override

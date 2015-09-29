@@ -2,15 +2,19 @@ package com.mytest.dropwizard;
 
 import com.codahale.metrics.health.HealthCheck;
 import com.mytest.dropwizard.configuration.DropwizardConfiguration;
+import com.mytest.dropwizard.configuration.SpringConfiguration;
 import com.mytest.dropwizard.filters.SecurityFilter;
 import com.mytest.dropwizard.resources.GreetingResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.servlet.*;
+import javax.ws.rs.Path;
 import java.io.IOException;
 import java.util.EnumSet;
+import java.util.Map;
 
 /**
  * Created by avitale on 9/28/15.
@@ -19,7 +23,23 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
 
     @Override
     public void run(DropwizardConfiguration configuration, Environment environment) throws Exception {
-        final GreetingResource greetingResource = new GreetingResource(configuration.getTemplate(), configuration.getDefaultName());
+
+        AnnotationConfigWebApplicationContext parent = new AnnotationConfigWebApplicationContext();
+        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
+
+        // Init Spring context before we init the app context, we have to create a parent context with all the
+        // config objects others rely on to get initialized
+        parent.refresh();
+        parent.getBeanFactory().registerSingleton("configuration", configuration);
+        parent.registerShutdownHook();
+        parent.start();
+
+        //the real main app context has a link to the parent context
+        ctx.setParent(parent);
+        ctx.register(SpringConfiguration.class);
+        ctx.refresh();
+        ctx.registerShutdownHook();
+        ctx.start();
 
         // register health check
         environment.healthChecks().register("health-check", new HealthCheck() {
@@ -35,7 +55,16 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
                    .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         // register resource
+
+        /* NO NEED TO REGISTER RESOURCES - IF WE USE THE SPRING WAY
+        final GreetingResource greetingResource = new GreetingResource(configuration.getTemplate(), configuration.getDefaultName());
         environment.jersey().register(greetingResource);
+         */
+
+        Map<String, Object> resources = ctx.getBeansWithAnnotation(Path.class);
+        for (Map.Entry<String, Object> entry : resources.entrySet()) {
+            environment.jersey().register(entry.getValue());
+        }
     }
 
     @Override
