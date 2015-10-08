@@ -16,6 +16,8 @@ public class DropwizardConfiguration extends Configuration {
     @NotEmpty
     private String defaultName = "Stranger";
 
+    private MongoConfiguration mongoConfiguration;
+
     @JsonProperty
     public String getTemplate() {
         return template;
@@ -34,5 +36,14 @@ public class DropwizardConfiguration extends Configuration {
     @JsonProperty
     public void setDefaultName(String defaultName) {
         this.defaultName = defaultName;
+    }
+
+    @JsonProperty("mongo")
+    public MongoConfiguration getMongoConfiguration() {
+        return mongoConfiguration;
+    }
+
+    public void setMongoConfiguration(MongoConfiguration mongoConfiguration) {
+        this.mongoConfiguration = mongoConfiguration;
     }
 }

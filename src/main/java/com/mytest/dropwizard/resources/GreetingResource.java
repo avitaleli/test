@@ -6,6 +6,7 @@ import com.mytest.dropwizard.configuration.DropwizardConfiguration;
 import com.mytest.dropwizard.model.Saying;
 import com.mytest.dropwizard.utils.AuthorizedForRole;
 import com.mytest.dropwizard.utils.Role;
+import com.mytest.mongo.dao.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,7 @@ public class GreetingResource {
 //        this.counter = new AtomicLong();
 //    }
 
+    @Inject
     public GreetingResource() {
         super();
         counter = new AtomicLong();

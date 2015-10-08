@@ -1,10 +1,13 @@
 package com.mytest.dropwizard;
 
 import com.codahale.metrics.health.HealthCheck;
+import com.hubspot.dropwizard.guice.GuiceBundle;
 import com.mytest.dropwizard.configuration.DropwizardConfiguration;
+import com.mytest.dropwizard.configuration.GuiceInjectionModule;
 import com.mytest.dropwizard.configuration.SpringConfiguration;
 import com.mytest.dropwizard.filters.ResourceAuthorizationFilterFactory;
 import com.mytest.dropwizard.filters.SecurityFilter;
+import com.mytest.dropwizard.resources.InjectResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -23,24 +26,24 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
     @Override
     public void run(DropwizardConfiguration configuration, Environment environment) throws Exception {
 
-        AnnotationConfigWebApplicationContext parent = new AnnotationConfigWebApplicationContext();
-        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
+//        AnnotationConfigWebApplicationContext parent = new AnnotationConfigWebApplicationContext();
+//        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
 
         // Init Spring context before we init the app context, we have to create a parent context with all the
         // config objects others rely on to get initialized
-        parent.refresh();
-        parent.getBeanFactory().registerSingleton("configuration", configuration);
-        parent.registerShutdownHook();
-        parent.start();
+//        parent.refresh();
+//        parent.getBeanFactory().registerSingleton("configuration", configuration);
+//        parent.registerShutdownHook();
+//        parent.start();
 
         //the real main app context has a link to the parent context
-        ctx.setParent(parent);
-        ctx.register(SpringConfiguration.class);
-        ctx.refresh();
-        ctx.registerShutdownHook();
-        ctx.start();
+//        ctx.setParent(parent);
+//        ctx.register(SpringConfiguration.class);
+//        ctx.refresh();
+//        ctx.registerShutdownHook();
+//        ctx.start();
 
-        environment.jersey().register(ResourceAuthorizationFilterFactory.class);
+//        environment.jersey().register(ResourceAuthorizationFilterFactory.class);
 
         // register health check
         environment.healthChecks().register("health-check", new HealthCheck() {
@@ -51,9 +54,9 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
         });
 
         // add filter // http://stackoverflow.com/questions/19166603/custom-jetty-filters-in-dropwizard
-        environment.servlets()
-                   .addFilter("securityFilter", SecurityFilter.class)
-                   .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+//        environment.servlets()
+//                   .addFilter("securityFilter", SecurityFilter.class)
+//                   .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
         // register resource
 
@@ -62,10 +65,12 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
         environment.jersey().register(greetingResource);
          */
 
-        Map<String, Object> resources = ctx.getBeansWithAnnotation(Path.class);
-        for (Map.Entry<String, Object> entry : resources.entrySet()) {
-            environment.jersey().register(entry.getValue());
-        }
+//        Map<String, Object> resources = ctx.getBeansWithAnnotation(Path.class);
+//        for (Map.Entry<String, Object> entry : resources.entrySet()) {
+//            environment.jersey().register(entry.getValue());
+//        }
+
+        environment.jersey().register(InjectResource.class);
     }
 
     @Override
@@ -76,6 +81,7 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
     @Override
     public void initialize(Bootstrap<DropwizardConfiguration> bootstrap) {
         super.initialize(bootstrap);
+        bootstrap.addBundle(GuiceBundle.<DropwizardConfiguration>newBuilder().addModule(new GuiceInjectionModule()).setConfigClass(DropwizardConfiguration.class).build());
     }
 
     public static void main(String[] args) throws Exception {
