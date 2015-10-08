@@ -3,8 +3,8 @@ package com.mytest.dropwizard;
 import com.codahale.metrics.health.HealthCheck;
 import com.mytest.dropwizard.configuration.DropwizardConfiguration;
 import com.mytest.dropwizard.configuration.SpringConfiguration;
+import com.mytest.dropwizard.filters.ResourceAuthorizationFilterFactory;
 import com.mytest.dropwizard.filters.SecurityFilter;
-import com.mytest.dropwizard.resources.GreetingResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -12,7 +12,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import javax.servlet.*;
 import javax.ws.rs.Path;
-import java.io.IOException;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -40,6 +39,8 @@ public class DropwizardApplication extends Application<DropwizardConfiguration> 
         ctx.refresh();
         ctx.registerShutdownHook();
         ctx.start();
+
+        environment.jersey().register(ResourceAuthorizationFilterFactory.class);
 
         // register health check
         environment.healthChecks().register("health-check", new HealthCheck() {

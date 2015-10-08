@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 /**
  * Created by avitale on 9/28/15.
  */
+@org.springframework.context.annotation.Configuration
 public class DropwizardConfiguration extends Configuration {
 
     @NotEmpty

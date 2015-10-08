@@ -4,6 +4,8 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Optional;
 import com.mytest.dropwizard.configuration.DropwizardConfiguration;
 import com.mytest.dropwizard.model.Saying;
+import com.mytest.dropwizard.utils.AuthorizedForRole;
+import com.mytest.dropwizard.utils.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +53,7 @@ public class GreetingResource {
 
     @GET
     @Timed
+    @AuthorizedForRole(Role.ADMINISTRATOR)
     public Saying greet(@QueryParam("name") Optional<String> name) {
         final String value = name.or(configuration.getDefaultName());
         return new Saying(counter.incrementAndGet(), value);
