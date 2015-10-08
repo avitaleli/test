@@ -13,6 +13,16 @@ repositories {
     mavenLocal()
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:0.8.0'
+//        classpath 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:0.9.0-SNAPSHOT'
+    }
+}
+
 //project.ext.springVersion = "4.0.3.RELEASE"
 
 ext {
@@ -38,6 +48,10 @@ dependencies {
     compile "org.mongodb.morphia:morphia:1.0.1"
     compile "com.hubspot.dropwizard:dropwizard-guice:0.8.3.0"
     compile "com.google.inject:guice:4.0"
+    compile 'org.mongodb:mongo-java-driver:2.6.5'
+    compile 'org.mongodb.morphia:morphia:1.0.1'
+
+    testCompile 'com.sourcemuse.gradle.plugin:gradle-mongo-plugin:0.8.0'
 }
 
 mainClassName = "com.mytest.dropwizard.DropwizardApplication"
@@ -45,6 +59,39 @@ mainClassName = "com.mytest.dropwizard.DropwizardApplication"
 run {
     args 'server', 'dropwizard_config.yml'
 }
+
+apply plugin: 'mongo'
+
+mongo {
+    logging 'console'
+    port 27017
+}
+
+test {
+    println "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    startMongoDb.execute()
+    Thread.sleep 3000
+    println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+
+}
+
+//def mongoRunning = false
+//
+//test {
+//    println "\n\n\t\tMONGOOOOOOOOOOOOOOOO"
+//    doFirst {
+//        startMongoDb.execute()
+//        mongoRunning = true
+//    }
+//    finalizedBy stopMongoDb
+//}
+//
+//stopMongoDb{
+//    onlyIf {mongoRunning}
+//    doLast  {
+//        mongoRunning = false
+//    }
+//}
 
 //run {
 //    args = ['server', 'dropwizard_config.yml']
